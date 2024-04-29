@@ -1,8 +1,57 @@
 import time
 import mysql.connector
-
 balance = 0
 name = input("Name: ")
+
+
+
+
+def updatePassword(password):
+    while True:
+        conn = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='superunlock',
+            database='clients'
+        )
+        new_password = input("Enter your new Password: ")
+        confirm_password = input("Confirm your new Password: ")
+        if new_password == confirm_password:
+            c = conn.cursor()
+            q = f'update accounts set password="{new_password}"where password="{password}"'
+            c.execute(q)
+            conn.commit()
+            c.close()
+            conn.close()
+            print("password successfully changed")
+            break
+        else:
+            print("passwords don't match")
+
+
+
+def updateEmail(email):
+    while True:
+        conn = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='',
+            database='clients'
+        )
+        new_email = input("Enter your new Password: ")
+        confirm_email = input("Confirm your new Password: ")
+        if new_email == confirm_email:
+            c = conn.cursor()
+            q = f'update accounts set email="{new_email}"where email="{email}"'
+            c.execute(q)
+            conn.commit()
+            c.close()
+            conn.close()
+            print("E-mail successfully changed")
+            break
+        else:
+            print("E-mails don't match")
+
 
 
 def getbalance():
@@ -11,7 +60,7 @@ def getbalance():
     conn = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='superunlock',
+        password='',
         database='clients'
     )
     time.sleep(1)
@@ -29,7 +78,7 @@ def updateBalance(balance):
     conn = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='superunlock',
+        password='',
         database='clients'
     )
     c = conn.cursor()
@@ -41,31 +90,36 @@ def updateBalance(balance):
 
 
 def register():
-    conn = mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='superunlock',
-        database='clients'
-    )
-    print("let's create an account for you")
-    time.sleep(1)
-    name1 = input("Name: ")
-    time.sleep(1)
-    surname = input('Surname: ')
-    time.sleep(1)
-    email = input("E-mail: ")
-    time.sleep(1)
-    date_of_birth = input('Date of birth(YYYY-MM-DD): ')
-    time.sleep(1)
-    password = input("Password: ")
-    time.sleep(1)
-    c = conn.cursor()
-    q = 'insert into accounts(name1,surname,email,date_of_birth,password) values(%s,%s,%s,%s,%s)'
-    v = (name, surname, email, date_of_birth, password)
-    c.execute(q, v)
-    conn.commit()
-    c.close()
-    conn.close()
+    while True:
+        conn = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='',
+            database='clients'
+        )
+        print("let's create an account for you")
+        time.sleep(1)
+        name = input("Name: ")
+        time.sleep(1)
+        surname = input('Surname: ')
+        time.sleep(1)
+        email = input("E-mail: ")
+        time.sleep(1)
+        date_of_birth = input('Date of birth(YYYY-MM-DD): ')
+        time.sleep(1)
+        balance = int(input('Deposit: '))
+        time.sleep(1)
+        password = input("Password: ")
+        time.sleep(1)
+        c = conn.cursor()
+        q = 'insert into accounts(name,surname,email,date_of_birth,password,balance) values(%s,%s,%s,%s,%s,%s)'
+        v = (name, surname, email, date_of_birth, password, balance)
+        c.execute(q, v)
+        conn.commit()
+        c.close()
+        conn.close()
+        print("Account successfully created :)")
+        break
 
 
 def transact():
@@ -112,7 +166,7 @@ def transact():
         getbalance()
         print("Welcome to the Bank\n")
         time.sleep(1)
-        transaction = int(input("1. Deposit\n2. Withdrawal\n3. Buy prepaid\n4. Check Balance\n5.Exit\n: "))
+        transaction = int(input("1. Deposit\n2. Withdrawal\n3. Buy prepaid\n4. Check Balance\n5. Update Account\n6. Exit\n: "))
 
         match transaction:
             case 1:
@@ -139,6 +193,17 @@ def transact():
                 print(f"Your balance is R{balance}")
 
             case 5:
+                update = int(input("What would you like to update?\n1. E-mail\n2. Password\n: "))
+                if update == 1:
+                    email = input("Enter your old E-mail: ")
+                    updateEmail(email)
+                elif update == 2:
+                    password = input("your old password: ")
+                    updatePassword(password)
+                else:
+                    print('invalid choice!')
+
+            case 6:
                 exit("Goodbye")
 
 
@@ -148,7 +213,7 @@ def login():
         conn = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='superunlock',
+            password='',
             database='clients'
         )
         name = input("Name: ")
@@ -160,7 +225,7 @@ def login():
             r = c.fetchone()
             name_ = r[1]
             password_ = r[5]
-            if name_ == name and password_ == password:
+            if name_.lower() == name.lower() and password_ == password:
                 print("log in successful")
                 break
             else:
@@ -169,13 +234,16 @@ def login():
             print('Account not in database')
 
 
-print("Hello")
+print(f"Hello {name}")
 account = input("Do you have an account?\nPress y for yes or n for no: ")
+if account.lower() == 'y':
+    login()
+    transact()
+
+elif account == 'n':
+    register()
 
 while True:
-    if account.lower() == 'y':
-        login()
-        transact()
+    login()
+    transact()
 
-    elif account == 'n':
-        register()
