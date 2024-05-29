@@ -4,14 +4,12 @@ balance = 0
 name = input("Name: ")
 
 
-
-
 def updatePassword(password):
     while True:
         conn = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='superunlock',
+            password='',
             database='clients'
         )
         new_password = input("Enter your new Password: ")
@@ -27,7 +25,6 @@ def updatePassword(password):
             break
         else:
             print("passwords don't match")
-
 
 
 def updateEmail(email):
@@ -51,7 +48,6 @@ def updateEmail(email):
             break
         else:
             print("E-mails don't match")
-
 
 
 def getbalance():
@@ -210,28 +206,43 @@ def transact():
 def login():
     global balance
     while True:
-        conn = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='',
-            database='clients'
-        )
-        name = input("Name: ")
-        password = input("Password: ")
-        c = conn.cursor()
-        q = f'select * from accounts where name="{name}"'
         try:
-            c.execute(q)
-            r = c.fetchone()
-            name_ = r[1]
-            password_ = r[5]
-            if name_.lower() == name.lower() and password_ == password:
-                print("log in successful")
-                break
-            else:
-                print("incorrect log in details")
+            conn = mysql.connector.connect(
+                host='localhost',
+                user='root',
+                password='',
+                database='clients'
+            )
+            name = input("Name: ")
+            password = input("Password: ")
+            c = conn.cursor()
+            q = f'select * from accounts where name="{name}"'
+            try:
+                c.execute(q)
+                r = c.fetchone()
+                name_ = r[1]
+                password_ = r[5]
+                if name_.lower() == name.lower() and password_ == password:
+                    print("log in successful")
+                    break
+                else:
+                    print("incorrect log in details")
+            except:
+                print('Account not in database')
+
         except:
-            print('Account not in database')
+            conn = mysql.connector.connect(
+                host='localhost',
+                user='root',
+                password=''
+            )
+            c = conn.cursor()
+            q = f'create database clients'
+            c.execute(q)
+            conn.commit()
+            c.close()
+            register()
+
 
 
 print(f"Hello {name}")
