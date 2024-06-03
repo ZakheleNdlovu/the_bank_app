@@ -239,6 +239,8 @@ def login():
             c = conn.cursor()
             q = f'create database clients'
             c.execute(q)
+            q = f'create table accounts(id serial primary key, name varchar(50), surname varchar(50), email varchar(100), date_of_birth, password varchar(50), balance int(9))'
+            c.execute(q)
             conn.commit()
             c.close()
             register()
